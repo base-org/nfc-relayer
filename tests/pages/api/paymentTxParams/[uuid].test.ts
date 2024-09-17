@@ -9,31 +9,28 @@ jest.mock('@/helpers/database', () => ({
 
 mockConsoleOutput();
 
+const run = async (method: string, query: any) => {
+  const mockReq: Partial<NextApiRequest> = { method, query };
+  const mockRes: Partial<NextApiResponse> = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    setHeader: jest.fn(),
+    end: jest.fn(),
+  };
+  const mockPrismaClient = {
+    paymentTx: {
+      findUnique: jest.fn(),
+    },
+  };
+  (getPrismaClient as jest.Mock).mockReturnValue(mockPrismaClient);
+
+  await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
+
+  return { mockReq, mockRes, mockPrismaClient };
+};
+
 describe('GET /api/paymentTxParams/[uuid]', () => {
-  let mockReq: Partial<NextApiRequest>;
-  let mockRes: Partial<NextApiResponse>;
-  let mockPrismaClient: any;
-
-  beforeEach(() => {
-    mockReq = {};
-    mockRes = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-      setHeader: jest.fn(),
-      end: jest.fn(),
-    };
-    mockPrismaClient = {
-      paymentTx: {
-        findUnique: jest.fn(),
-      },
-    };
-    (getPrismaClient as jest.Mock).mockReturnValue(mockPrismaClient);
-  });
-
   it('should retrieve a payment transaction by UUID', async () => {
-    mockReq.method = 'GET';
-    mockReq.query = { uuid: 'test-uuid' };
-
     const mockPaymentTx = {
       uuid: 'test-uuid',
       toAddress: '0x1234567890123456789012345678901234567890',
@@ -43,43 +40,31 @@ describe('GET /api/paymentTxParams/[uuid]', () => {
       data: { someData: 'value' },
     };
 
+    const { mockRes, mockPrismaClient } = await run('GET', { uuid: 'test-uuid' });
     mockPrismaClient.paymentTx.findUnique.mockResolvedValue(mockPaymentTx);
-
-    await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
 
     expect(mockRes.status).toHaveBeenCalledWith(200);
     expect(mockRes.json).toHaveBeenCalledWith(mockPaymentTx);
   });
 
   it('should return 404 when payment transaction is not found', async () => {
-    mockReq.method = 'GET';
-    mockReq.query = { uuid: 'non-existent-uuid' };
-
+    const { mockRes, mockPrismaClient } = await run('GET', { uuid: 'non-existent-uuid' });
     mockPrismaClient.paymentTx.findUnique.mockResolvedValue(null);
-
-    await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
 
     expect(mockRes.status).toHaveBeenCalledWith(404);
     expect(mockRes.json).toHaveBeenCalledWith({ message: 'Not Found' });
   });
 
   it('should return 400 for invalid UUID', async () => {
-    mockReq.method = 'GET';
-    mockReq.query = { uuid: ['invalid-uuid'] };
-
-    await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
+    const { mockRes } = await run('GET', { uuid: ['invalid-uuid'] });
 
     expect(mockRes.status).toHaveBeenCalledWith(400);
     expect(mockRes.json).toHaveBeenCalledWith({ message: 'Invalid UUID' });
   });
 
   it('should handle errors when retrieving a payment transaction', async () => {
-    mockReq.method = 'GET';
-    mockReq.query = { uuid: 'test-uuid' };
-
+    const { mockRes, mockPrismaClient } = await run('GET', { uuid: 'test-uuid' });
     mockPrismaClient.paymentTx.findUnique.mockRejectedValue(new Error('Database error'));
-
-    await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
 
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith({
@@ -88,10 +73,7 @@ describe('GET /api/paymentTxParams/[uuid]', () => {
   });
 
   it('should return 405 for non-GET methods', async () => {
-    mockReq.method = 'POST';
-    mockReq.query = { uuid: 'test-uuid' };
-
-    await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
+    const { mockRes } = await run('POST', { uuid: 'test-uuid' });
 
     expect(mockRes.setHeader).toHaveBeenCalledWith('Allow', ['GET']);
     expect(mockRes.status).toHaveBeenCalledWith(405);

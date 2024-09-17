@@ -9,30 +9,29 @@ jest.mock('@/helpers/database', () => ({
 
 mockConsoleOutput();
 
+const run = async (method: string, body: any) => {
+  const mockReq: Partial<NextApiRequest> = { method, body };
+  const mockRes: Partial<NextApiResponse> = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    setHeader: jest.fn(),
+    end: jest.fn(),
+  };
+  const mockPrismaClient = {
+    paymentTx: {
+      create: jest.fn(),
+    },
+  };
+  (getPrismaClient as jest.Mock).mockReturnValue(mockPrismaClient);
+
+  await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
+
+  return { mockReq, mockRes, mockPrismaClient };
+};
+
 describe('POST /api/paymentTxParams', () => {
-  let mockReq: Partial<NextApiRequest>;
-  let mockRes: Partial<NextApiResponse>;
-  let mockPrismaClient: any;
-
-  beforeEach(() => {
-    mockReq = {};
-    mockRes = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-      setHeader: jest.fn(),
-      end: jest.fn(),
-    };
-    mockPrismaClient = {
-      paymentTx: {
-        create: jest.fn(),
-      },
-    };
-    (getPrismaClient as jest.Mock).mockReturnValue(mockPrismaClient);
-  });
-
   it('should create a new payment transaction', async () => {
-    mockReq.method = 'POST';
-    mockReq.body = {
+    const body = {
       toAddress: '0x1234567890123456789012345678901234567890',
       chainId: 1,
       amount: '1000000000000000000',
@@ -40,12 +39,11 @@ describe('POST /api/paymentTxParams', () => {
       data: { someData: 'value' },
     };
 
+    const { mockRes, mockPrismaClient } = await run('POST', body);
     mockPrismaClient.paymentTx.create.mockResolvedValue({
       uuid: 'generated-uuid',
-      ...mockReq.body,
+      ...body,
     });
-
-    await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
 
     expect(mockRes.status).toHaveBeenCalledWith(201);
     expect(mockRes.json).toHaveBeenCalledWith({
@@ -55,17 +53,15 @@ describe('POST /api/paymentTxParams', () => {
   });
 
   it('should handle errors when creating a payment transaction', async () => {
-    mockReq.method = 'POST';
-    mockReq.body = {
+    const body = {
       toAddress: '0x1234567890123456789012345678901234567890',
       chainId: 1,
       amount: '1000000000000000000',
       contractId: 'contract123',
     };
 
+    const { mockRes, mockPrismaClient } = await run('POST', body);
     mockPrismaClient.paymentTx.create.mockRejectedValue(new Error('Database error'));
-
-    await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
 
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith({
@@ -74,9 +70,7 @@ describe('POST /api/paymentTxParams', () => {
   });
 
   it('should return 405 for non-POST methods', async () => {
-    mockReq.method = 'GET';
-
-    await handler(mockReq as NextApiRequest, mockRes as NextApiResponse);
+    const { mockRes } = await run('GET', {});
 
     expect(mockRes.setHeader).toHaveBeenCalledWith('Allow', ['POST']);
     expect(mockRes.status).toHaveBeenCalledWith(405);
