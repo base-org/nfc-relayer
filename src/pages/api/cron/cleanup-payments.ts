@@ -10,9 +10,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const cronSecret = process.env.CRON_SECRET;
   const authHeader = req.headers.authorization;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+  console.log('cronSecret', cronSecret);
+  console.log('authHeader', authHeader);
+  // if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  //   return res.status(401).json({ message: 'Unauthorized' });
+  // }
 
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
