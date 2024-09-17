@@ -6,20 +6,6 @@ export const config = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Check for Vercel's cron job secret
-  const cronSecret = process.env.CRON_SECRET;
-  const authHeader = req.headers.authorization;
-
-  console.log('cronSecret', cronSecret);
-  console.log('authHeader', authHeader);
-  // if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-  //   return res.status(401).json({ message: 'Unauthorized' });
-  // }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
-  }
-
   try {
     const deletedCount = await cleanupOldPayments();
     return res.status(200).json({ message: `Cleaned up ${deletedCount} old payment transactions` });
