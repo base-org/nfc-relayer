@@ -9,5 +9,12 @@
     "ecmaVersion": 2020,
     "sourceType": "module"
   },
-  "rules": {}
+  "rules": {},
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "project": "./tsconfig.json"
+      }
+    }
+  }
 }

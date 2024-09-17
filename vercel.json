@@ -2,7 +2,17 @@
   "crons": [
     {
       "path": "/api/cron/cleanup-payments",
-      "schedule": "*/10 * * * *"
+      "schedule": "*/10 * * * *",
+      "httpMethod": "POST",
+      "headers": {
+        "Authorization": "Bearer @CRON_SECRET"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/paymentTxParams",
+      "dest": "/api/paymentTxParams.ts"
     }
   ]
 }

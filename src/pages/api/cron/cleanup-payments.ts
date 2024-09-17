@@ -1,20 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { verifySignature } from '@vercel/next-cron';
-import { cleanupOldPayments } from '../../../helpers/cleanup-payments';
+import { cleanupOldPayments } from '@helpers/cleanup-payments';
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'experimental-edge',
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
+  // Check for Vercel's cron job secret
+  const cronSecret = process.env.CRON_SECRET;
+  const authHeader = req.headers.authorization;
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  const isValidSignature = await verifySignature(req);
-
-  if (!isValidSignature) {
-    return res.status(401).json({ message: 'Unauthorized' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
   try {

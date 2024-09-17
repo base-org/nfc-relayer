@@ -1,12 +1,13 @@
-import { cleanupOldPayments } from './cleanup-payments';
-import { getPrismaClient } from './database';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { cleanupOldPayments } from '@helpers/cleanup-payments';
+import { getPrismaClient } from '@helpers/database';
 
 jest.mock('./database', () => ({
   getPrismaClient: jest.fn(),
 }));
 
 describe('cleanupOldPayments', () => {
-  let mockPrismaClient: any;
+  let mockPrismaClient: jest.Mocked<any> = null;
   let mockDeleteMany: jest.Mock;
 
   beforeEach(() => {

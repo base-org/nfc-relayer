@@ -45,3 +45,6 @@ Thumbs.db
 
 # Yarn Integrity file
 .yarn-integrity
+
+# Next Cache
+.next
