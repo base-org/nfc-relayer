@@ -8,11 +8,12 @@ datasource db {
 }
 
 model PaymentTx {
-  uuid       String   @id @default(uuid())
+  uuid       String   @id
   toAddress  String
   chainId    Int
   amount     String
   contractId String
+  data       Json?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
