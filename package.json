@@ -17,6 +17,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.24",
     "@types/node": "^16.11.6",
     "@types/react": "^17.0.0",
     "@types/uuid": "^8.3.3",
@@ -25,10 +26,10 @@
     "eslint": "^8.2.0",
     "eslint-config-next": "^12.0.0",
     "eslint-config-prettier": "^8.3.0",
+    "jest": "^27.0.6",
     "prettier": "^2.4.1",
     "prisma": "^3.6.0",
-    "typescript": "^4.4.4",
-    "jest": "^27.0.6",
-    "@types/jest": "^26.0.24"
+    "ts-jest": "^29.2.5",
+    "typescript": "^4.4.4"
   }
 }

@@ -1,23 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { mockConsoleOutput } from '@tests/testHelpers';
 import { cleanupOldPayments } from '@helpers/cleanup-payments';
 import { getPrismaClient } from '@helpers/database';
 
-jest.mock('./database', () => ({
+jest.mock('@helpers/database', () => ({
   getPrismaClient: jest.fn(),
 }));
 
+mockConsoleOutput();
+
 describe('cleanupOldPayments', () => {
-  let mockPrismaClient: jest.Mocked<any> = null;
-  let mockDeleteMany: jest.Mock;
+  const mockDeleteMany = jest.fn();
+  const mockPrismaClient = {
+    paymentTx: {
+      deleteMany: mockDeleteMany,
+    },
+    $disconnect: jest.fn(),
+  };
 
   beforeEach(() => {
-    mockDeleteMany = jest.fn();
-    mockPrismaClient = {
-      paymentTx: {
-        deleteMany: mockDeleteMany,
-      },
-      $disconnect: jest.fn(),
-    };
+    jest.clearAllMocks();
     (getPrismaClient as jest.Mock).mockReturnValue(mockPrismaClient);
   });
 
