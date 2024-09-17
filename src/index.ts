@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import express from 'express';
 import dotenv from 'dotenv';
-import { getConnection, closeConnection } from './helpers/database';
+import { getPrismaClient, disconnectPrisma } from './helpers/database';
 import paymentRoutes from './routes/paymentRoutes';
 
 dotenv.config();
@@ -13,13 +13,13 @@ app.use(express.json());
 
 process.on('SIGINT', async () => {
   console.log('Closing database connection and shutting down server...');
-  await closeConnection();
+  await disconnectPrisma();
   process.exit(0);
 });
 
 async function startServer() {
   try {
-    await getConnection();
+    await getPrismaClient();
     console.log('Connected to PostgreSQL');
 
     app.use('/api', paymentRoutes);

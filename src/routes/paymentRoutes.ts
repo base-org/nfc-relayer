@@ -1,17 +1,21 @@
 import express, { Request, Response } from 'express';
-import { getConnection } from '../helpers/database';
-import { PaymentTx } from '../models/PaymentTx';
+import { getPrismaClient } from '../helpers/database';
 
 const router = express.Router();
 
 router.post('/paymentTxParams', async (req: Request, res: Response) => {
   try {
     const { data } = req.body;
-    const connection = await getConnection();
-    const paymentTxRepository = connection.getRepository(PaymentTx);
+    const prisma = getPrismaClient();
 
-    const newPaymentTx = paymentTxRepository.create(data);
-    await paymentTxRepository.save(newPaymentTx);
+    const newPaymentTx = await prisma.paymentTx.create({
+      data: {
+        toAddress: data.toAddress,
+        chainId: data.chainId,
+        amount: data.amount,
+        contractId: data.contractId,
+      },
+    });
 
     res.status(201).json({ message: 'Payment transaction params stored successfully', uuid: newPaymentTx.uuid });
   } catch (error) {

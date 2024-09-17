@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PaymentTx {
+  uuid       String   @id @default(uuid())
+  toAddress  String
+  chainId    Int
+  amount     String
+  contractId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

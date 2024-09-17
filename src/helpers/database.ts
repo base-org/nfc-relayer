@@ -1,25 +1,22 @@
-import { createConnection, Connection } from 'typeorm';
-import { PaymentTx } from '../models/PaymentTx';
+import { PrismaClient } from '@prisma/client';
 
-let connection: Connection | null = null;
+let prisma: PrismaClient;
 
-export async function getConnection(): Promise<Connection> {
-  if (connection && connection.isConnected) {
-    return connection;
+export function getPrismaClient(): PrismaClient {
+  if (!prisma) {
+    prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.NODE_ENV === 'production' 
+            ? process.env.DATABASE_URL_POOLED 
+            : process.env.DATABASE_URL,
+        },
+      },
+    });
   }
-
-  connection = await createConnection({
-    type: 'postgres',
-    url: process.env.POSTGRES_CONN_STRING,
-    entities: [PaymentTx],
-    synchronize: true,
-  });
-
-  return connection;
+  return prisma;
 }
 
-export async function closeConnection(): Promise<void> {
-  if (connection && connection.isConnected) {
-    await connection.close();
-  }
+export async function disconnectPrisma(): Promise<void> {
+  await prisma.$disconnect();
 }
