@@ -13,6 +13,9 @@
       "@/*": [
         "src/*"
       ],
+      "@pages/*": [
+        "src/pages/*"
+      ],
       "@helpers/*": [
         "src/helpers/*"
       ],
