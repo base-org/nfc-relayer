@@ -3,7 +3,6 @@
     {
       "path": "/api/cron/cleanup-payments",
       "schedule": "*/10 * * * *",
-      "httpMethod": "POST",
       "headers": {
         "Authorization": "Bearer @CRON_SECRET"
       }
