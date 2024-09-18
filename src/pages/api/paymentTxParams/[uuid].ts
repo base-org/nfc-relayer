@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'GET') {
     try {
       const { uuid } = req.query;
-      
+
       if (typeof uuid !== 'string') {
         return res.status(400).json({ message: 'Invalid UUID' });
       }
@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).json(paymentTx);
     } catch (error) {
       console.error('Error retrieving payment transaction:', error);
-      res.status(500).json({ message: 'Error retrieving payment transaction' });
+      res.status(500).json({ message: `Error retrieving payment transaction: ${(error as Error).message}` });
     }
   } else {
     res.setHeader('Allow', ['GET']);
