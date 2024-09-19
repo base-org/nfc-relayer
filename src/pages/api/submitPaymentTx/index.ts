@@ -1,22 +1,42 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    try {
-      res
-        .status(201)
-        .json({
-          message: 'Dummy Endpoint, not yet implemented',
-          txHash: '0x566bbc200b9d1ad32019ad26e4682b9d36cd645b6a1a58257a67f0047f70b8ca',
-        });
-    } catch (error) {
-      console.error('Error storing payment:', error);
-      res.status(500).json({
-        message: 'Error storing payment transaction params',
-      });
+
+// api/relayer.js
+import { ethers } from 'ethers';
+
+// The JSON RPC URL of an Ethereum node (like Infura or Alchemy)
+const provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
+
+// A private key to sign transactions (you may want to use a secure key vault)
+const wallet = new ethers.Wallet(process.env.RELAYER_PRIVATE_KEY!, provider);
+
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
     }
-  } else {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
+
+    try {
+      const { chainId, domain, types, message, signature } = req.body;
+
+        // Validate and recover the signer from the signature
+        const signerAddress = ethers.verifyTypedData(domain, types, message, signature);
+
+        // If valid, you can relay the transaction to the Ethereum network
+        const tx = {
+            from: signerAddress,
+            to: message.to,
+            value: message.value,
+            data: message.data,
+            chainId,
+        } as ethers.TransactionRequest;
+
+        // Sign and send the transaction
+        const sentTx = await wallet.sendTransaction(tx);
+
+        // Respond with the transaction hash
+        return res.status(200).json({ txHash: sentTx.hash });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Failed to process transaction' });
+    }
 }
