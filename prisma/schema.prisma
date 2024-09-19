@@ -10,7 +10,7 @@ datasource db {
 model PaymentTx {
   uuid            String   @id
   toAddress       String
-  chainId         Int
+  chainId         String
   contractAddress String
   value           String
   data            Json?
