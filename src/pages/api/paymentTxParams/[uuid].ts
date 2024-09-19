@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { uuid },
       });
 
-      if (!txData || !paymentTx) {
+      if (!txData && !paymentTx) {
         return res.status(404).json({ message: 'Not Found' });
       }
 
