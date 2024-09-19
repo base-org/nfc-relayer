@@ -9,7 +9,13 @@ jest.mock('@/helpers/database', () => ({
 
 mockConsoleOutput();
 
-const run = async (method: string, body: any) => {
+type Params = {
+  method?: string;
+  body?: any;
+  shouldFail?: boolean;
+}
+
+const run = async ({ method, body, shouldFail = false }: Params = {}) => {
   const mockReq: Partial<NextApiRequest> = { method, body };
   const mockRes: Partial<NextApiResponse> = {
     status: jest.fn().mockReturnThis(),
@@ -19,7 +25,10 @@ const run = async (method: string, body: any) => {
   };
   const mockPrismaClient = {
     paymentTx: {
-      create: jest.fn(),
+      create: shouldFail ? jest.fn().mockRejectedValue(new Error('Database error')) : jest.fn().mockResolvedValue({
+        uuid: 'generated-uuid',
+        ...body,
+      }),
     },
   };
   (getPrismaClient as jest.Mock).mockReturnValue(mockPrismaClient);
@@ -39,11 +48,7 @@ describe('POST /api/paymentTxParams', () => {
       data: { someData: 'value' },
     };
 
-    const { mockRes, mockPrismaClient } = await run('POST', body);
-    mockPrismaClient.paymentTx.create.mockResolvedValue({
-      uuid: 'generated-uuid',
-      ...body,
-    });
+    const { mockRes } = await run({ method: 'POST', body });
 
     expect(mockRes.status).toHaveBeenCalledWith(201);
     expect(mockRes.json).toHaveBeenCalledWith({
@@ -60,17 +65,16 @@ describe('POST /api/paymentTxParams', () => {
       contractId: 'contract123',
     };
 
-    const { mockRes, mockPrismaClient } = await run('POST', body);
-    mockPrismaClient.paymentTx.create.mockRejectedValue(new Error('Database error'));
+    const { mockRes } = await run({ method: 'POST', body, shouldFail: true });
 
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith({
-      message: 'Error storing payment transaction params',
+      message: 'Error storing payment transaction params: Database error',
     });
   });
 
   it('should return 405 for non-POST methods', async () => {
-    const { mockRes } = await run('GET', {});
+    const { mockRes } = await run({ method: 'GET', body: {} });
 
     expect(mockRes.setHeader).toHaveBeenCalledWith('Allow', ['POST']);
     expect(mockRes.status).toHaveBeenCalledWith(405);

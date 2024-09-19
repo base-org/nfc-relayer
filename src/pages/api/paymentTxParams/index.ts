@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(201).json({ message: 'Payment relay stored successfully', uuid: newPaymentTx.uuid });
     } catch (error) {
       console.error('Error storing payment:', error);
-      res.status(500).json({ message: 'Error storing payment transaction params' });
+      res.status(500).json({ message: `Error storing payment transaction params: ${(error as Error).message}`});
     }
   } else {
     res.setHeader('Allow', ['POST']);
