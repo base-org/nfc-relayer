@@ -7,24 +7,67 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
-      // const { uuid, toAddress, chainId, amount, contractId, data } = req.body;
-      const { uuid, chainId, requiresBuyerAddress, contractAbi, placeholderBuyerAddress, approveTxs, relayerSubmissionParams, paymentTx, dappUrl, dappName } = req.body;
+      const { 
+        payloadType,
+        uuid,
+        chainId, 
+        dappUrl, 
+        dappName,
+
+        // fields relevant to contractCall payload type
+        requiresBuyerAddress, 
+        contractAbi, 
+        placeholderBuyerAddress, 
+        approveTxs, 
+        relayerSubmissionParams, 
+        paymentTx, 
+
+        // fields relevant to eip681 payload type
+        contractAddress,
+        toAddress,
+        value,
+      } = req.body;
+
+      if (!payloadType) {
+        return res.status(400).json({ message: 'Payload type is required' });
+      }
+
+      if (!['eip681', 'contractCall'].includes(payloadType)) {
+        return res.status(400).json({ message: 'Invalid payload type, must be eip681 or contractCall' });
+      }
+
       const paymentUuid = uuid || uuidv4();
 
-      const newPaymentTx = await prisma.contactlessPaymentTxData.create({
-        data: {
-          uuid: paymentUuid,
-          requiresBuyerAddress,
-          contractAbi,
-          placeholderBuyerAddress,
-          chainId,
-          approveTxs,
-          relayerSubmissionParams,
-          paymentTx,
-          dappUrl,
-          dappName,
-        },
-      });
+      let newPaymentTx;
+
+      if (payloadType === 'eip681') { 
+        newPaymentTx = await prisma.paymentTx.create({
+          data: {
+            uuid: paymentUuid,
+            chainId,
+            dappUrl,
+            dappName,
+            contractAddress,
+            toAddress,
+            value,
+          },
+        });
+      } else {
+        newPaymentTx = await prisma.contactlessPaymentTxData.create({
+          data: {
+            uuid: paymentUuid,
+            requiresBuyerAddress,
+            contractAbi,
+            placeholderBuyerAddress,
+            chainId,
+            approveTxs,
+            relayerSubmissionParams,
+            paymentTx,
+            dappUrl,
+            dappName,
+          },
+        });
+      }
 
       res.status(201).json({ message: 'Payment relay stored successfully', uuid: newPaymentTx.uuid });
     } catch (error) {

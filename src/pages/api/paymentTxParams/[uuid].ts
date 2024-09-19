@@ -16,19 +16,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { uuid },
       });
 
-      if (!txData) {
+      const paymentTx = await prisma.paymentTx.findUnique({
+        where: { uuid },
+      });
+
+      if (!txData || !paymentTx) {
         return res.status(404).json({ message: 'Not Found' });
       }
-      // omit the requiresBuyerAddress, contractAbi, and placeholderBuyerAddress fields
-      // from the response
-      const txDataReturned = {
-        ...txData,
-        requiresBuyerAddress: undefined,
-        contractAbi: undefined,
-        placeholderBuyerAddress: undefined,
-      }
 
-      res.status(200).json(txDataReturned);
+      if (paymentTx) {
+        res.status(200).json({ payloadType: 'eip681', ...paymentTx });
+      } else {
+        // omit the requiresBuyerAddress, contractAbi, and placeholderBuyerAddress fields
+        // from the response
+        const txDataReturned = {
+          ...txData,
+          requiresBuyerAddress: undefined,
+          contractAbi: undefined,
+          placeholderBuyerAddress: undefined,
+        }
+        res.status(200).json({ payloadType: 'contractCall', ...txDataReturned });
+      }
     } catch (error) {
       console.error('Error retrieving payment transaction:', error);
       res.status(500).json({ message: `Error retrieving payment transaction: ${(error as Error).message}` });
