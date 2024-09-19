@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "postinstall": "prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^3.6.0",
