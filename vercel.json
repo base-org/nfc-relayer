@@ -1,9 +1,4 @@
 {
-  "build": {
-    "env": {
-      "RUN_MIGRATIONS": "true"
-    }
-  },
   "crons": [
     {
       "path": "/api/cron/cleanup-payments",
