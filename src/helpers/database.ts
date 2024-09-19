@@ -7,9 +7,7 @@ export function getPrismaClient(): PrismaClient {
     prisma = new PrismaClient({
       datasources: {
         db: {
-          url: process.env.NODE_ENV === 'production' 
-            ? process.env.DATABASE_URL_POOLED 
-            : process.env.DATABASE_URL,
+          url: process.env.DATABASE_URL
         },
       },
     });
