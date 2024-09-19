@@ -7,17 +7,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
-      const { uuid, toAddress, chainId, amount, contractId, data } = req.body;
+      // const { uuid, toAddress, chainId, amount, contractId, data } = req.body;
+      const { uuid, chainId, requiresBuyerAddress, contractAbi, placeholderBuyerAddress, approveTxs, relayerSubmissionParams, paymentTx, dappUrl, dappName } = req.body;
       const paymentUuid = uuid || uuidv4();
 
-      const newPaymentTx = await prisma.paymentTx.create({
+      const newPaymentTx = await prisma.contactlessPaymentTxData.create({
         data: {
           uuid: paymentUuid,
-          toAddress,
+          requiresBuyerAddress,
+          contractAbi,
+          placeholderBuyerAddress,
           chainId,
-          amount,
-          contractId,
-          data: data || {},
+          approveTxs,
+          relayerSubmissionParams,
+          paymentTx,
+          dappUrl,
+          dappName,
         },
       });
 
