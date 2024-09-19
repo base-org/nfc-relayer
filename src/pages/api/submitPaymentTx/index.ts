@@ -16,25 +16,31 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { chainId, domain, types, message, signature } = req.body;
+      const { chainId, domain, types, message, signature, txHash, uuid } = req.body;
 
-        // Validate and recover the signer from the signature
-        const signerAddress = ethers.verifyTypedData(domain, types, message, signature);
+      // if just the txHash is passed in, just return the txHash
+      // TODO (Mike): check if the txHash is valid and alert the dapp that we've received a payment
+      if (txHash) {
+        return res.status(200).json({ txHash });
+      }
 
-        // If valid, you can relay the transaction to the Ethereum network
-        const tx = {
-            from: signerAddress,
-            to: message.to,
-            value: message.value,
-            data: message.data,
-            chainId,
-        } as ethers.TransactionRequest;
+      // Validate and recover the signer from the signature
+      const signerAddress = ethers.verifyTypedData(domain, types, message, signature);
 
-        // Sign and send the transaction
-        const sentTx = await wallet.sendTransaction(tx);
+      // If valid, you can relay the transaction to the Ethereum network
+      const tx = {
+          from: signerAddress,
+          to: message.to,
+          value: message.value,
+          data: message.data,
+          chainId,
+      } as ethers.TransactionRequest;
 
-        // Respond with the transaction hash
-        return res.status(200).json({ txHash: sentTx.hash });
+      // Sign and send the transaction
+      const sentTx = await wallet.sendTransaction(tx);
+
+      // Respond with the transaction hash
+      return res.status(200).json({ txHash: sentTx.hash });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Failed to process transaction' });
