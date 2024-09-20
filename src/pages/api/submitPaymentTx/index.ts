@@ -69,7 +69,7 @@ export default async function handler(
   tx.gasPrice = await provider.getGasPrice();
   tx.nonce = await provider.getTransactionCount(process.env.PAYMASTER_ADDRESS!);
 
-  const key = ethers.Wallet.fromMnemonic(process.env.MNEMONIC!).privateKey;
+  const key = ethers.Wallet.fromMnemonic(process.env.PAYMASTER_MNEMONIC!).privateKey;
   const signer = new ethers.Wallet(key, provider);
   const signedTx = await signer.signTransaction(tx);
 
