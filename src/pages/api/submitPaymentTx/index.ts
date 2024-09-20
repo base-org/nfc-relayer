@@ -27,7 +27,12 @@ export default async function handler(
 
   const provider = new ethers.providers.JsonRpcProvider(sponsoredInfo.rpc);
 
-  const { from, to, value, nonce, validAfter, validBefore, signature } = req.body;
+  const { from, to, value, nonce, validAfter, validBefore, signature, uuid, txHash } = req.body;
+
+  // TODO (Mike): If possible, use the UUID to communicate to the appropriate websocket that a transaction was received and sent
+  if (txHash) {
+    return res.status(200).json({ data: { hash: txHash } });
+  }
 
   const { v, r, s } = ethers.utils.splitSignature(signature);
 
