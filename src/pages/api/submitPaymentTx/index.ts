@@ -27,7 +27,9 @@ export default async function handler(
 
   const provider = new ethers.providers.JsonRpcProvider(sponsoredInfo.rpc);
 
-  const { from, to, value, nonce, validAfter, validBefore, v, r, s } = req.body;
+  const { from, to, value, nonce, validAfter, validBefore, signature } = req.body;
+
+  const { v, r, s } = ethers.utils.splitSignature(signature);
 
   const contract = new ethers.Contract(
     sponsoredInfo.fiatTokenAddress,
