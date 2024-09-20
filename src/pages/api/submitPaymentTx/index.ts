@@ -28,9 +28,6 @@ export default async function handler(req, res) {
         return res.status(200).json({ txHash });
       }
 
-
-      // const contract = new ethers.Contract(message.to, USDC_BASE_CONTRACT_ABI, wallet);
-
       // Validate and recover the signer from the signature
       const signerAddress = ethers.verifyTypedData(domain, types, message, signature);
 
