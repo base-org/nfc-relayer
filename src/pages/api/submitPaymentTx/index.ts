@@ -25,15 +25,15 @@ export default async function handler(
     return res.status(500);
   }
 
-  const { chainId } = req.body;
+  const { message, signature, uuid, txHash } = req.body;
+  const { chainId, from, to, value, nonce, validAfter, validBefore } = message;
+
   const sponsoredInfo = sponsoredUsdcMapping.find((s) => s.chainId === Number(chainId));
   if (!sponsoredInfo) {
     return res.status(500).json({ error: "Unsupported chain" });
   }
 
   const provider = new ethers.providers.JsonRpcProvider(sponsoredInfo.rpc);
-
-  const { from, to, value, nonce, validAfter, validBefore, signature, uuid, txHash } = req.body;
 
   // TODO (Mike): If possible, use the UUID to communicate to the appropriate websocket that a transaction was received and sent
   if (txHash) {
