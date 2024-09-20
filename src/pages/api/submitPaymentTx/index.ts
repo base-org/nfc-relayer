@@ -4,8 +4,14 @@ import { sponsoredUsdcMapping } from "@/sponsoredUsdcConfig";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
 
+type TxHashReceivedResponse = {
+  data?: {
+    txHash: string;
+  },
+}
+
 type SponsoredRelayResponse = {
-  data?: ethers.providers.TransactionResponse;
+  data?: ethers.providers.TransactionResponse | TxHashReceivedResponse;
   error?: any;
 };
 
@@ -31,7 +37,7 @@ export default async function handler(
 
   // TODO (Mike): If possible, use the UUID to communicate to the appropriate websocket that a transaction was received and sent
   if (txHash) {
-    return res.status(200).json({ data: { hash: txHash } });
+    return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
   }
 
   const { v, r, s } = ethers.utils.splitSignature(signature);
