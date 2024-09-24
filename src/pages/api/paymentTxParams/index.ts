@@ -82,6 +82,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             dappName,
           }
         });
+      } else {
+        return res.status(400).json({ message: 'Invalid payload type' });
       }
 
       res.status(201).json({ message: 'Payment relay stored successfully', uuid: newPaymentTx.uuid });
