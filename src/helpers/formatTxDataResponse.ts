@@ -6,7 +6,7 @@ type Props = {
   buyerAddress?: string;
 }
 
-export async function formatTxData({ txData, buyerAddress }: Props) {
+export async function formatTxDataResponse({ txData, buyerAddress }: Props) {
   const { requiresBuyerAddress, contractAbi, placeholderBuyerAddress } = txData;
 
   let finalTxData = txData;
@@ -46,8 +46,6 @@ async function substituteBuyerAddress({ contractAbi, data, placeholderBuyerAddre
 
   // Decode the call data to get the function name and parameters
   const decodedData = iface.parseTransaction({ data });
-
-  console.log(decodedData.args);
 
     // Function to recursively replace the placeholder in params
   const replaceInParams = (params) => {

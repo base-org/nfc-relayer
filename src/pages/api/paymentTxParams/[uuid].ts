@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getPrismaClient } from '@helpers/database';
-import { formatTxData, handleContractCallFetchByUUID } from '@/helpers/handleContractCallFetchByUUID';
-import { sliceAbi } from '@/SliceAbi';
+import { formatTxDataResponse } from '@/helpers/formatTxDataResponse';
 import { ethers } from 'ethers';
+import { formatTxMessageResponse } from '@/helpers/formatTxMessageResponse';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const prisma = getPrismaClient();
@@ -15,15 +15,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ message: 'Invalid UUID' });
       }
 
-      // TODO (Justin): Await these promises in parallel
+      if (!!buyerAddress && ((typeof buyerAddress !== 'string') || !ethers.utils.isAddress(buyerAddress))) {
+        return res.status(400).json({ message: 'Invalid buyer address' });
+      }
+      
       const paymentTxPromise = prisma.paymentTx.findUnique({
         where: { uuid },
       });
-
       const txDataPromise = prisma.contactlessPaymentTxData.findUnique({
         where: { uuid },
       });
-
       const txMessagePromise = prisma.contactlessPaymentMessage.findUnique({
         where: { uuid },
       });
@@ -37,12 +38,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (paymentTx) {
         res.status(200).json({ payloadType: 'eip681', ...paymentTx });
       } else if (txData) {
-        // console.log({ test: ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(sliceAbi)))});
-        const formattedTxData = await formatTxData({ txData, buyerAddress });
+        // Substitute the buyer address into the tx call data if applicable
+        const formattedTxData = await formatTxDataResponse({ txData, buyerAddress });
         res.status(200).json({ payloadType: 'contractCall', ...formattedTxData })
       } else {
-        // TODO (Justin): Substitute the txMessage field's buyer address with the actual buyer address
-        res.status(200).json({ payloadType: 'eip712', ...txMessage });
+        // Substitute the buyer address into the message's from field if applicable
+        const formattedTxMessage = formatTxMessageResponse({ txMessage, buyerAddress });
+        res.status(200).json({ payloadType: 'eip712', ...formattedTxMessage });
       }
     } catch (error) {
       console.error('Error retrieving payment transaction:', error);
