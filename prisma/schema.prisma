@@ -8,16 +8,17 @@ datasource db {
 }
 
 model PaymentTx {
-  uuid            String   @id
-  toAddress       String
-  chainId         String
-  contractAddress String
-  value           String
-  data            Json?
-  dappName        String?
-  dappUrl         String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  uuid                    String   @id
+  toAddress               String
+  chainId                 String
+  contractAddress         String
+  value                   String
+  data                    Json?
+  dappName                String?
+  dappUrl                 String?
+  relayerSubmissionParams Json?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
 
 model ContactlessPaymentTxData {
@@ -29,6 +30,16 @@ model ContactlessPaymentTxData {
   approveTxs              Json?
   relayerSubmissionParams Json?
   paymentTx               Json
+  dappName                String?
+  dappUrl                 String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model ContactlessPaymentMessage {
+  uuid                    String   @id
+  relayerSubmissionParams Json
+  message                 Json
   dappName                String?
   dappUrl                 String?
   createdAt               DateTime @default(now())
