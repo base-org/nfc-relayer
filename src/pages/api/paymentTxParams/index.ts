@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ message: 'Payload type is required' });
       }
 
-      if (!['eip681', 'contractCall'].includes(payloadType)) {
+      if (!['eip681', 'contractCall', 'eip712'].includes(payloadType)) {
         return res.status(400).json({ message: 'Invalid payload type, must be eip681 or contractCall' });
       }
 
