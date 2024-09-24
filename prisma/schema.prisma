@@ -38,6 +38,7 @@ model ContactlessPaymentTxData {
 
 model ContactlessPaymentMessage {
   uuid                    String   @id
+  chainId                 String
   relayerSubmissionParams Json
   message                 Json
   dappName                String?
