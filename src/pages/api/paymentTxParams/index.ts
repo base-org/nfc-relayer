@@ -17,6 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // fields relevant to the eip712 payload type
         message,
+        additionalPayload,
         
         // fields relevant to contractCall payload type
         requiresBuyerAddress, 
@@ -78,6 +79,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             chainId,
             relayerSubmissionParams,
             message,
+            additionalPayload,
             dappUrl,
             dappName,
           }

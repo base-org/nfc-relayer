@@ -41,6 +41,7 @@ model ContactlessPaymentMessage {
   chainId                 String
   relayerSubmissionParams Json
   message                 Json
+  additionalPayload       Json?
   dappName                String?
   dappUrl                 String?
   createdAt               DateTime @default(now())
