@@ -48,9 +48,9 @@ async function substituteBuyerAddress({ contractAbi, data, placeholderBuyerAddre
   const decodedData = iface.parseTransaction({ data });
 
     // Function to recursively replace the placeholder in params
-  const replaceInParams = (params) => {
+  const replaceInParams = (params: any[]): any => {
     // console.log({ params });
-    return params.map(param => {
+    return params.map((param: any) => {
         if (Array.isArray(param)) {
             // Recursively process each element in the array
             return replaceInParams(param);
@@ -64,7 +64,7 @@ async function substituteBuyerAddress({ contractAbi, data, placeholderBuyerAddre
   };
 
   // Replace placeholder addresses in the decoded parameters
-  const updatedParams = replaceInParams(decodedData.args);
+  const updatedParams = replaceInParams(decodedData.args as any);
 
   // Encode the modified parameters back into call data
   const newCallData = iface.encodeFunctionData(decodedData.sighash, updatedParams);
