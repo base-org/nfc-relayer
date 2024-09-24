@@ -29,7 +29,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { uuid },
       });
       
-      const [paymentTx, txData, txMessage] = (await Promise.allSettled([paymentTxPromise, txDataPromise, txMessagePromise])).map(({ value }) => value);
+      const [paymentTx, txData, txMessage] = (await Promise.allSettled([paymentTxPromise, txDataPromise, txMessagePromise])).map(promiseResult => {
+        if (promiseResult.status === 'fulfilled') {
+          return promiseResult.value
+        };
+
+        return undefined;
+      });
 
       if (!txData && !paymentTx && !txMessage) {
         return res.status(404).json({ message: 'Not Found' });
