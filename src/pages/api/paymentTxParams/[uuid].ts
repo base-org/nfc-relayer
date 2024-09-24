@@ -1,29 +1,34 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getPrismaClient } from '@helpers/database';
+import { formatTxData, handleContractCallFetchByUUID } from '@/helpers/handleContractCallFetchByUUID';
+import { sliceAbi } from '@/SliceAbi';
+import { ethers } from 'ethers';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const prisma = getPrismaClient();
 
   if (req.method === 'GET') {
     try {
-      const { uuid } = req.query;
+      const { uuid, buyerAddress } = req.query;
 
       if (typeof uuid !== 'string') {
         return res.status(400).json({ message: 'Invalid UUID' });
       }
 
-      const paymentTx = await prisma.paymentTx.findUnique({
+      // TODO (Justin): Await these promises in parallel
+      const paymentTxPromise = prisma.paymentTx.findUnique({
         where: { uuid },
       });
 
-      const txData = await prisma.contactlessPaymentTxData.findUnique({
+      const txDataPromise = prisma.contactlessPaymentTxData.findUnique({
         where: { uuid },
       });
 
-      const txMessage = await prisma.contactlessPaymentMessage.findUnique({
+      const txMessagePromise = prisma.contactlessPaymentMessage.findUnique({
         where: { uuid },
       });
-
+      
+      const [paymentTx, txData, txMessage] = (await Promise.allSettled([paymentTxPromise, txDataPromise, txMessagePromise])).map(({ value }) => value);
 
       if (!txData && !paymentTx && !txMessage) {
         return res.status(404).json({ message: 'Not Found' });
@@ -32,15 +37,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (paymentTx) {
         res.status(200).json({ payloadType: 'eip681', ...paymentTx });
       } else if (txData) {
-        // omit the requiresBuyerAddress, contractAbi, and placeholderBuyerAddress fields
-        // from the response
-        const txDataReturned = {
-          ...txData,
-          requiresBuyerAddress: undefined,
-          contractAbi: undefined,
-          placeholderBuyerAddress: undefined,
-        }
-        res.status(200).json({ payloadType: 'contractCall', ...txDataReturned });
+        // console.log({ test: ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(sliceAbi)))});
+        const formattedTxData = await formatTxData({ txData, buyerAddress });
+        res.status(200).json({ payloadType: 'contractCall', ...formattedTxData })
       } else {
         // TODO (Justin): Substitute the txMessage field's buyer address with the actual buyer address
         res.status(200).json({ payloadType: 'eip712', ...txMessage });
