@@ -13,16 +13,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         chainId, 
         dappUrl, 
         dappName,
-        relayerSubmissionParams, 
+        rpcProxySubmissionParams, 
 
         // fields relevant to the eip712 payload type
         message,
         additionalPayload,
         
         // fields relevant to contractCall payload type
-        requiresBuyerAddress, 
+        requiresSenderAddress, 
         contractAbi, 
-        placeholderBuyerAddress, 
+        placeholderSenderAddress, 
         approveTxs, 
         paymentTx, 
 
@@ -54,19 +54,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             contractAddress,
             toAddress,
             value,
-            relayerSubmissionParams,
+            rpcProxySubmissionParams,
           },
         });
       } else if (payloadType === 'contractCall') {
         newPaymentTx = await prisma.contactlessPaymentTxData.create({
           data: {
             uuid: paymentUuid,
-            requiresBuyerAddress,
+            requiresSenderAddress,
             contractAbi,
-            placeholderBuyerAddress,
+            placeholderSenderAddress,
             chainId,
             approveTxs,
-            relayerSubmissionParams,
+            rpcProxySubmissionParams,
             paymentTx,
             dappUrl,
             dappName,
@@ -77,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           data: {
             uuid: paymentUuid,
             chainId,
-            relayerSubmissionParams,
+            rpcProxySubmissionParams,
             message,
             additionalPayload,
             dappUrl,

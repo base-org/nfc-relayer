@@ -8,44 +8,44 @@ datasource db {
 }
 
 model PaymentTx {
-  uuid                    String   @id
-  toAddress               String
-  chainId                 String
-  contractAddress         String
-  value                   String
-  data                    Json?
-  dappName                String?
-  dappUrl                 String?
-  relayerSubmissionParams Json?
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  uuid                     String   @id
+  toAddress                String
+  chainId                  String
+  contractAddress          String
+  value                    String
+  data                     Json?
+  dappName                 String?
+  dappUrl                  String?
+  rpcProxySubmissionParams Json?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 }
 
 model ContactlessPaymentTxData {
-  uuid                    String   @id
-  chainId                 String
-  requiresBuyerAddress    Boolean?
-  contractAbi             String?
-  placeholderBuyerAddress String?
-  approveTxs              Json?
-  relayerSubmissionParams Json?
-  paymentTx               Json
-  dappName                String?
-  dappUrl                 String?
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  uuid                     String   @id
+  chainId                  String
+  requiresSenderAddress    Boolean?
+  contractAbi              String?
+  placeholderSenderAddress String?
+  approveTxs               Json?
+  rpcProxySubmissionParams Json?
+  paymentTx                Json
+  dappName                 String?
+  dappUrl                  String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 }
 
 model ContactlessPaymentMessage {
-  uuid                    String   @id
-  chainId                 String
-  relayerSubmissionParams Json
-  message                 Json
-  additionalPayload       Json?
-  dappName                String?
-  dappUrl                 String?
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  uuid                     String   @id
+  chainId                  String
+  rpcProxySubmissionParams Json     @default("{}")
+  message                  Json
+  additionalPayload        Json?
+  dappName                 String?
+  dappUrl                  String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 }
 
 model Nonce {
