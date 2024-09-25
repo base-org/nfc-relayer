@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextApiRequest, NextApiResponse } from 'next';
 import handler from '@pages/api/paymentTxParams/index';
 import { getPrismaClient } from '@helpers/database';
