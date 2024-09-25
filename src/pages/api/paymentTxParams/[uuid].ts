@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         !!senderAddress &&
         (typeof senderAddress !== 'string' || !ethers.utils.isAddress(senderAddress))
       ) {
-        return res.status(400).json({ message: 'Invalid buyer address' });
+        return res.status(400).json({ message: 'Invalid sender address' });
       }
 
       const paymentTxOrMsg = await getPaymentTxOrMsg(uuid as string);

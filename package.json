@@ -9,7 +9,6 @@
     "lint": "next lint",
     "test": "jest",
     "postinstall": "prisma generate",
-    "prepare": "simple-git-hooks",
     "prepush": "yarn test"
   },
   "dependencies": {
@@ -34,13 +33,8 @@
     "lint-staged": "^12.0.6",
     "prettier": "^2.4.1",
     "prisma": "^3.6.0",
-    "simple-git-hooks": "^2.8.1",
     "ts-jest": "^29.2.5",
     "typescript": "^4.4.4"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "npx lint-staged",
-    "pre-push": "yarn prepush"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [

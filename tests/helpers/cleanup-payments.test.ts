@@ -12,7 +12,7 @@ mockConsoleOutput();
 describe('cleanupOldPayments', () => {
   const mockDeleteMany = jest.fn();
   const mockPrismaClient = {
-    paymentTx: {
+    contactlessPaymentTxOrMsg: {
       deleteMany: mockDeleteMany,
     },
     $disconnect: jest.fn(),

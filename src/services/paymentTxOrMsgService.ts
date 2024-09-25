@@ -7,6 +7,7 @@ import {
   isContractCallPayload,
   isEip712Payload,
 } from '@/types/paymentTx';
+import { Prisma } from '@prisma/client';
 
 /**
  * Helper for formatting the payload for storage in the database
@@ -25,13 +26,11 @@ export const createPaymentTxOrMsg = async (payload: Payload) => {
     dappUrl: payload.dappUrl,
     dappName: payload.dappName,
     payloadType: payload.payloadType,
-
     additionalPayload: payload.additionalPayload,
     rpcProxySubmissionParams: payload.rpcProxySubmissionParams,
   };
 
-  // TODO: Amhed: Type better
-  let txParams: any;
+  let txParams: Prisma.JsonValue;
 
   if (isEip681Payload(payload)) {
     txParams = {
@@ -56,11 +55,14 @@ export const createPaymentTxOrMsg = async (payload: Payload) => {
   return prisma.contactlessPaymentTxOrMsg.create({
     data: {
       ...baseData,
-      txParams: txParams,
+      txParams,
     },
   });
 };
 
+/**
+ * Get a payment transaction or message by uuid. Flattens the txParams object
+ */
 export const getPaymentTxOrMsg = async (uuid: string) => {
   const prisma = getPrismaClient();
 
