@@ -44,48 +44,55 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       let newPaymentTx;
 
-      if (payloadType === 'eip681') { 
-        newPaymentTx = await prisma.paymentTx.create({
-          data: {
-            uuid: paymentUuid,
-            chainId,
-            dappUrl,
-            dappName,
-            contractAddress,
-            toAddress,
-            value,
-            rpcProxySubmissionParams,
-          },
-        });
-      } else if (payloadType === 'contractCall') {
-        newPaymentTx = await prisma.contactlessPaymentTxData.create({
-          data: {
-            uuid: paymentUuid,
-            requiresSenderAddress,
-            contractAbi,
-            placeholderSenderAddress,
-            chainId,
-            approveTxs,
-            rpcProxySubmissionParams,
-            paymentTx,
-            dappUrl,
-            dappName,
-          },
-        });
-      } else if (payloadType === 'eip712') {
-        newPaymentTx = await prisma.contactlessPaymentMessage.create({
-          data: {
-            uuid: paymentUuid,
-            chainId,
-            rpcProxySubmissionParams,
-            message,
-            additionalPayload,
-            dappUrl,
-            dappName,
-          }
-        });
-      } else {
-        return res.status(400).json({ message: 'Invalid payload type' });
+      switch (payloadType) {
+        case 'eip681':
+          newPaymentTx = await prisma.paymentTx.create({
+            data: {
+              uuid: paymentUuid,
+              chainId,
+              dappUrl,
+              dappName,
+              contractAddress,
+              toAddress,
+              value,
+              rpcProxySubmissionParams,
+            },
+          });
+          break;
+
+        case 'contractCall':
+          newPaymentTx = await prisma.contactlessPaymentTxData.create({
+            data: {
+              uuid: paymentUuid,
+              requiresSenderAddress,
+              contractAbi,
+              placeholderSenderAddress,
+              chainId,
+              approveTxs,
+              rpcProxySubmissionParams,
+              paymentTx,
+              dappUrl,
+              dappName,
+            },
+          });
+          break;
+
+        case 'eip712':
+          newPaymentTx = await prisma.contactlessPaymentMessage.create({
+            data: {
+              uuid: paymentUuid,
+              chainId,
+              rpcProxySubmissionParams,
+              message,
+              additionalPayload,
+              dappUrl,
+              dappName,
+            }
+          });
+          break;
+          
+        default:
+          return res.status(400).json({ message: 'Invalid payload type' });
       }
 
       res.status(201).json({ message: 'Payment relay stored successfully', uuid: newPaymentTx.uuid });
