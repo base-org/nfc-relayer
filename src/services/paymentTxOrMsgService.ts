@@ -25,7 +25,7 @@ export const createPaymentTxOrMsg = async (payload: Payload) => {
     dappUrl: payload.dappUrl,
     dappName: payload.dappName,
     payloadType: payload.payloadType,
-    
+
     additionalPayload: payload.additionalPayload,
     rpcProxySubmissionParams: payload.rpcProxySubmissionParams,
   };
@@ -59,4 +59,23 @@ export const createPaymentTxOrMsg = async (payload: Payload) => {
       txParams: txParams,
     },
   });
+};
+
+export const getPaymentTxOrMsg = async (uuid: string) => {
+  const prisma = getPrismaClient();
+
+  const paymentTxOrMsg = await prisma.contactlessPaymentTxOrMsg.findUnique({
+    where: { uuid },
+  });
+
+  if (!paymentTxOrMsg) {
+    throw new Error('Payment transaction or message not found');
+  }
+
+  // remove the txParams prop and flatten
+  const { txParams, ...rest } = paymentTxOrMsg;
+  return {
+    ...rest,
+    ...(txParams as Record<string, unknown>),
+  };
 };
