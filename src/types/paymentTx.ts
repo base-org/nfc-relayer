@@ -49,5 +49,5 @@ export function isContractCallPayload(payload: Payload): payload is ContractCall
 }
 
 export function isEip712Payload(payload: Payload): payload is Eip712Payload {
-  return payload.payloadType === 'eip712' && 'message' in payload;
+  return payload.payloadType === 'eip712' && 'rpcProxySubmissionParams' in payload && 'message' in payload.rpcProxySubmissionParams;
 }
