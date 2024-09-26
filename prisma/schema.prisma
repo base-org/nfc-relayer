@@ -13,7 +13,7 @@ model ContactlessPaymentTxOrMsg {
   payloadType              String
   chainId                  String
   txParams                 Json?
-  rpcProxySubmissionParams Json?
+  rpcProxySubmissionParams String // stored as a stringified Json to preserve field order
   additionalPayload        Json?
   dappName                 String?
   dappUrl                  String?

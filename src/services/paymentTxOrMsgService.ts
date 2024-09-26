@@ -27,7 +27,7 @@ export const createPaymentTxOrMsg = async (payload: Payload) => {
     dappName: payload.dappName,
     payloadType: payload.payloadType,
     additionalPayload: payload.additionalPayload,
-    rpcProxySubmissionParams: payload.rpcProxySubmissionParams,
+    rpcProxySubmissionParams: JSON.stringify(payload.rpcProxySubmissionParams), // we stringify ths object to store it in the database to preserve field order
   };
 
   let txParams: Prisma.JsonValue;
@@ -47,7 +47,8 @@ export const createPaymentTxOrMsg = async (payload: Payload) => {
       paymentTx: payload.paymentTx,
     };
   } else if (isEip712Payload(payload)) {
-    txParams = { message: payload.message };
+    // noop, rpcProxySubmissionParams contains the message needed to be signed and submitted
+    txParams = {};
   } else {
     throw new Error('Invalid payload type');
   }
@@ -75,9 +76,10 @@ export const getPaymentTxOrMsg = async (uuid: string) => {
   }
 
   // remove the txParams prop and flatten
-  const { txParams, ...rest } = paymentTxOrMsg;
+  const { txParams, rpcProxySubmissionParams, ...rest } = paymentTxOrMsg;
   return {
     ...rest,
+    rpcProxySubmissionParams: typeof rpcProxySubmissionParams === 'string' ? JSON.parse(rpcProxySubmissionParams) : undefined,
     ...(txParams as Record<string, unknown>),
   };
 };
