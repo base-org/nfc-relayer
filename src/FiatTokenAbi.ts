@@ -1,3 +1,5 @@
+// TODO: Amhed: Move these to /types folder
+
 export const fiatTokenAbi = [
   {
     anonymous: false,

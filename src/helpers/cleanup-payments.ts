@@ -5,7 +5,7 @@ export async function cleanupOldPayments() {
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 
   try {
-    const result = await prisma.paymentTx.deleteMany({
+    const result = await prisma.contactlessPaymentTxOrMsg.deleteMany({
       where: {
         createdAt: {
           lt: fiveMinutesAgo

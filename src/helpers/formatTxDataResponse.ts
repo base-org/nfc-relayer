@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-
+// TODO: Justin, can we separate helpers related to slice unto their own folder?
 type Props = {
   txData: any;
   buyerAddress?: string;
