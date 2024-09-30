@@ -1,8 +1,8 @@
 import { fiatTokenAbi } from "@/FiatTokenAbi";
+import { appendTxHashToPayment } from "@/services/paymentTxOrMsgService";
 import { sponsoredUsdcMapping } from "@/sponsoredUsdcConfig";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { sendSSEEvent } from "../sse";
 
 type TxHashReceivedResponse = {
   data?: {
@@ -35,10 +35,8 @@ export default async function handler(
 
   const provider = new ethers.providers.JsonRpcProvider(sponsoredInfo.rpc);
 
-  // TODO (Mike): If possible, use the UUID to communicate to the appropriate websocket that a transaction was received and sent
   if (txHash) {
-    console.log({ txHash });
-    sendSSEEvent(uuid, { txHash });
+    await appendTxHashToPayment(uuid, txHash);
     return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
   }
 
