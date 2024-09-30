@@ -1,4 +1,5 @@
 import { fiatTokenAbi } from "@/FiatTokenAbi";
+import { applyCors } from "@/services/cors";
 import { appendTxHashToPayment } from "@/services/paymentTxOrMsgService";
 import { sponsoredUsdcMapping } from "@/sponsoredUsdcConfig";
 import { ethers } from "ethers";
@@ -19,8 +20,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SponsoredRelayResponse>
 ) {
-  // return res.status(500);
-
+  await applyCors(req, res);
   if (req.method !== "POST") {
     return res.status(500);
   }
