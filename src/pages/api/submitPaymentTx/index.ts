@@ -1,8 +1,8 @@
-
 import { fiatTokenAbi } from "@/FiatTokenAbi";
 import { sponsoredUsdcMapping } from "@/sponsoredUsdcConfig";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { sendSSEEvent } from "../sse";
 
 type TxHashReceivedResponse = {
   data?: {
@@ -37,6 +37,8 @@ export default async function handler(
 
   // TODO (Mike): If possible, use the UUID to communicate to the appropriate websocket that a transaction was received and sent
   if (txHash) {
+    console.log({ txHash });
+    sendSSEEvent(uuid, { txHash });
     return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
   }
 
