@@ -15,6 +15,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
     });
 
     clients.set(uuid, res);
