@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ message: 'Invalid sender address' });
       }
 
-      const paymentTxOrMsg = await getPaymentTxOrMsg(uuid as string);
+      const paymentTxOrMsg = await getPaymentTxOrMsg(uuid as string, senderAddress as string);
       res.status(200).json(paymentTxOrMsg);
     } catch (error) {
       console.error('Error retrieving payment transaction:', error);
