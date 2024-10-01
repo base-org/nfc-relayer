@@ -9,11 +9,14 @@ export function formatTxMessageResponse({ txMessage, senderAddress }: Props) {
 
   const updatedTxMessage = {
     ...txMessage,
-    message: {
-      ...txMessage.message,
+    rpcProxySubmissionParams: {
+      ...txMessage.rpcProxySubmissionParams,
       message: {
-        ...txMessage.message.message,
-        from: senderAddress,
+        ...txMessage.rpcProxySubmissionParams.message,
+        message: {
+          ...txMessage.rpcProxySubmissionParams.message.message,
+          from: senderAddress,
+        }
       },
     }
   }

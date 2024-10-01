@@ -8,6 +8,8 @@ import {
   isEip712Payload,
 } from '@/types/paymentTx';
 import { Prisma } from '@prisma/client';
+import { formatTxMessageResponse } from '@/helpers/formatTxMessageResponse';
+import { formatTxDataResponse } from '@/helpers/formatTxDataResponse';
 
 /**
  * Helper for formatting the payload for storage in the database
@@ -27,7 +29,7 @@ export const createPaymentTxOrMsg = async (payload: Payload) => {
     dappName: payload.dappName,
     payloadType: payload.payloadType,
     additionalPayload: payload.additionalPayload,
-    rpcProxySubmissionParams: JSON.stringify(payload.rpcProxySubmissionParams), // we stringify ths object to store it in the database to preserve field order
+    rpcProxySubmissionParams: payload.rpcProxySubmissionParams,
   };
 
   let txParams: Prisma.JsonValue;
@@ -65,7 +67,7 @@ export const createPaymentTxOrMsg = async (payload: Payload) => {
 /**
  * Get a payment transaction or message by uuid. Flattens the txParams object
  */
-export const getPaymentTxOrMsg = async (uuid: string) => {
+export const getPaymentTxOrMsg = async (uuid: string, senderAddress?: string) => {
   const prisma = getPrismaClient();
 
   const paymentTxOrMsg = await prisma.contactlessPaymentTxOrMsg.findUnique({
@@ -77,10 +79,30 @@ export const getPaymentTxOrMsg = async (uuid: string) => {
   }
 
   // remove the txParams prop and flatten
-  const { txParams, rpcProxySubmissionParams, ...rest } = paymentTxOrMsg;
+  const { txParams, ...rest } = paymentTxOrMsg;
+
+  if (paymentTxOrMsg.payloadType === 'eip712') {
+    return formatTxMessageResponse({
+      txMessage: {
+        ...rest,
+        ...(txParams as Record<string, unknown>),
+      },
+      senderAddress,
+    });
+  }
+
+  if (paymentTxOrMsg.payloadType === 'contractCall') {
+    return formatTxDataResponse({
+      txData: {
+      ...rest,
+      ...(txParams as Record<string, unknown>)
+    },
+    senderAddress,
+  });
+  }
+
   return {
     ...rest,
-    rpcProxySubmissionParams: typeof rpcProxySubmissionParams === 'string' ? JSON.parse(rpcProxySubmissionParams) : undefined,
     ...(txParams as Record<string, unknown>),
   };
 };
