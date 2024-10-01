@@ -10,6 +10,9 @@ const cors = Cors({
 // eslint-disable-next-line @typescript-eslint/ban-types
 function runMiddleware(req: NextApiRequest, res: NextApiResponse, fn: Function) {
   return new Promise((resolve, reject) => {
+    if (!fn) {
+      return reject(new Error('Middleware function is not defined'));
+    }
     fn(req, res, (result: any) => {
       if (result instanceof Error) {
         return reject(result)
@@ -20,5 +23,10 @@ function runMiddleware(req: NextApiRequest, res: NextApiResponse, fn: Function) 
 }
 
 export async function applyCors(req: NextApiRequest, res: NextApiResponse) {
-  await runMiddleware(req, res, cors);
+  try {
+    await runMiddleware(req, res, cors);
+  } catch (error) {
+    console.error('Error applying CORS middleware:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 }
