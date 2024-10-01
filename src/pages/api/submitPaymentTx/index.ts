@@ -1,5 +1,6 @@
-
 import { fiatTokenAbi } from "@/FiatTokenAbi";
+import { applyCors } from "@/services/cors";
+import { appendTxHashToPayment } from "@/services/paymentTxOrMsgService";
 import { sponsoredUsdcMapping } from "@/sponsoredUsdcConfig";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -19,8 +20,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SponsoredRelayResponse>
 ) {
-  // return res.status(500);
-
+  await applyCors(req, res);
   if (req.method !== "POST") {
     return res.status(500);
   }
@@ -35,8 +35,8 @@ export default async function handler(
 
   const provider = new ethers.providers.JsonRpcProvider(sponsoredInfo.rpc);
 
-  // TODO (Mike): If possible, use the UUID to communicate to the appropriate websocket that a transaction was received and sent
   if (txHash) {
+    await appendTxHashToPayment(uuid, txHash);
     return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
   }
 

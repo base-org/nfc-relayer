@@ -17,6 +17,7 @@ model ContactlessPaymentTxOrMsg {
   additionalPayload        Json?
   dappName                 String?
   dappUrl                  String?
+  txHash                   String?
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
 }

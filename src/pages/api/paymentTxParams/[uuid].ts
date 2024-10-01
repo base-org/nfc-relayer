@@ -1,9 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ethers } from 'ethers';
 import { getPaymentTxOrMsg } from '@/services/paymentTxOrMsgService';
+import { applyCors } from '@/services/cors';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
+    await applyCors(req, res);
+    
     try {
       const { uuid, senderAddress } = req.query;
 
