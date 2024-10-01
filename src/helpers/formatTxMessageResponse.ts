@@ -1,11 +1,11 @@
 
 type Props = {
   txMessage: any;
-  buyerAddress?: string;
+  senderAddress?: string;
 }
 
-export function formatTxMessageResponse({ txMessage, buyerAddress }: Props) {
-  if (!buyerAddress) return txMessage;
+export function formatTxMessageResponse({ txMessage, senderAddress }: Props) {
+  if (!senderAddress) return txMessage;
 
   const updatedTxMessage = {
     ...txMessage,
@@ -13,7 +13,7 @@ export function formatTxMessageResponse({ txMessage, buyerAddress }: Props) {
       ...txMessage.message,
       message: {
         ...txMessage.message.message,
-        from: buyerAddress,
+        from: senderAddress,
       },
     }
   }

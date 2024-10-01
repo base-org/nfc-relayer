@@ -3,44 +3,44 @@ import { ethers } from "ethers";
 // TODO: Justin, can we separate helpers related to slice unto their own folder?
 type Props = {
   txData: any;
-  buyerAddress?: string;
+  senderAddress?: string;
 }
 
-export async function formatTxDataResponse({ txData, buyerAddress }: Props) {
-  const { requiresBuyerAddress, contractAbi, placeholderBuyerAddress } = txData;
+export async function formatTxDataResponse({ txData, senderAddress }: Props) {
+  const { requiresSenderAddress, contractAbi, placeholderSenderAddress } = txData;
 
   let finalTxData = txData;
-  if (requiresBuyerAddress && contractAbi && placeholderBuyerAddress && buyerAddress) {
+  if (requiresSenderAddress && contractAbi && placeholderSenderAddress && senderAddress) {
     // substitute all instances of the placeholder buyer address with the given buyer address
     finalTxData = {
       ...txData,
       paymentTx: {
         ...txData.paymentTx,
-        data: await substituteBuyerAddress({ contractAbi, data: txData.paymentTx.data, placeholderBuyerAddress, buyerAddress })
+        data: await substituteSenderAddress({ contractAbi, data: txData.paymentTx.data, placeholderSenderAddress, senderAddress })
       }
     }
   }
 
-  // omit the requiresBuyerAddress, contractAbi, and placeholderBuyerAddress fields
+  // omit the requiresSenderAddress, contractAbi, and placeholderSenderAddress fields
   // from the response
   const txDataReturned = {
     ...finalTxData,
-    requiresBuyerAddress: undefined,
+    requiresSenderAddress: undefined,
     contractAbi: undefined,
-    placeholderBuyerAddress: undefined,
+    placeholderSenderAddress: undefined,
   }
 
   return txDataReturned
 }
 
-type SubstituteBuyerAddressProps = {
+type SubstituteSenderAddressProps = {
   contractAbi: string;
   data: string;
-  placeholderBuyerAddress: string;
-  buyerAddress: string;
+  placeholderSenderAddress: string;
+  senderAddress: string;
 }
 
-async function substituteBuyerAddress({ contractAbi, data, placeholderBuyerAddress, buyerAddress  }: SubstituteBuyerAddressProps) {
+async function substituteSenderAddress({ contractAbi, data, placeholderSenderAddress, senderAddress  }: SubstituteSenderAddressProps) {
   // Create an interface from the ABI
   const iface = new ethers.utils.Interface(contractAbi);
 
@@ -57,9 +57,9 @@ async function substituteBuyerAddress({ contractAbi, data, placeholderBuyerAddre
         }
         
         const isAddress = ethers.utils.isAddress(param)
-        const isEqualAddress = isAddress && param.toLowerCase() === placeholderBuyerAddress.toLowerCase();
+        const isEqualAddress = isAddress && param.toLowerCase() === placeholderSenderAddress.toLowerCase();
 
-        return isEqualAddress ? buyerAddress : param;
+        return isEqualAddress ? senderAddress : param;
     });
   };
 
