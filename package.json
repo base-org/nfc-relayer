@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@prisma/client": "^3.6.0",
+    "cors": "^2.8.5",
     "ethers": "5",
     "next": "^12.0.0",
     "react": "^17.0.2",
@@ -20,6 +21,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/jest": "^26.0.24",
     "@types/node": "^16.11.6",
     "@types/react": "^17.0.0",

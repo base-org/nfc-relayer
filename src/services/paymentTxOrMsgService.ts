@@ -83,3 +83,15 @@ export const getPaymentTxOrMsg = async (uuid: string) => {
     ...(txParams as Record<string, unknown>),
   };
 };
+
+// adding a tx hash will let the client know that the transaction was sent
+export const appendTxHashToPayment = async (uuid: string, txHash: string) => {
+  const prisma = getPrismaClient();
+
+  return prisma.contactlessPaymentTxOrMsg.update({
+    where: { uuid },
+    data: {
+      txHash,
+    },
+  });
+};
