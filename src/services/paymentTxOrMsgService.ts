@@ -48,6 +48,7 @@ export const createPaymentTxOrMsg = async (payload: Payload) => {
     };
   } else if (isEip712Payload(payload)) {
     // noop, rpcProxySubmissionParams contains the message needed to be signed and submitted
+    // TODO (Justin): Make this work for Slice
     txParams = {};
   } else {
     throw new Error('Invalid payload type');
