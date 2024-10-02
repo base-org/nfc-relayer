@@ -4,7 +4,6 @@ import { appendTxHashToPayment } from "@/services/paymentTxOrMsgService";
 import { sponsoredUsdcMapping } from "@/sponsoredUsdcConfig";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { payWithAuthorization } from "@slicekit/core";
 
 type TxHashReceivedResponse = {
   data?: {
