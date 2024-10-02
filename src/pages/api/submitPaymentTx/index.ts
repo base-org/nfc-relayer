@@ -4,6 +4,7 @@ import { appendTxHashToPayment } from "@/services/paymentTxOrMsgService";
 import { sponsoredUsdcMapping } from "@/sponsoredUsdcConfig";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { payWithAuthorization } from "@slicekit/core";
 
 type TxHashReceivedResponse = {
   data?: {
@@ -26,7 +27,8 @@ export default async function handler(
   }
 
   const { message, signature, uuid, txHash } = req.body;
-  const { chainId, from, to, value, nonce, validAfter, validBefore } = message;
+  const { from, to, value, nonce, validAfter, validBefore } = message.message;
+  const { chainId } = message.domain;
 
   const sponsoredInfo = sponsoredUsdcMapping.find((s) => s.chainId === Number(chainId));
   if (!sponsoredInfo) {
