@@ -50,15 +50,11 @@ export default async function handler(
   );
   const txParams = [from, to, value, validAfter, validBefore, nonce, v, r, s];
 
-  console.log(txParams);
-
   // estimate gas
   const estimatedGasLimit =
     await contract.estimateGas.transferWithAuthorization.apply(null, txParams);
 
   // generate unsigned tx
-
-
   const tx = await contract.populateTransaction.transferWithAuthorization.apply(
     null,
     txParams
@@ -76,6 +72,9 @@ export default async function handler(
 
   try {
     const txSubmission = await provider.sendTransaction(signedTx);
+    const txHash = txSubmission.hash;
+    await appendTxHashToPayment(uuid, txHash);
+
     res.status(200).json({ data: txSubmission });
   } catch (err: any) {
     // TODO: Report error somehwere
