@@ -26,7 +26,8 @@ export default async function handler(
   }
 
   const { message, signature, uuid, txHash } = req.body;
-  const { chainId, from, to, value, nonce, validAfter, validBefore } = message;
+  const { from, to, value, nonce, validAfter, validBefore } = message.message;
+  const { chainId } = message.domain;
 
   const sponsoredInfo = sponsoredUsdcMapping.find((s) => s.chainId === Number(chainId));
   if (!sponsoredInfo) {
