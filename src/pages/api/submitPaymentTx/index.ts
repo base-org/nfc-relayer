@@ -25,7 +25,14 @@ export default async function handler(
     return res.status(500);
   }
 
-  const { typedData, signature, uuid, txHash } = req.body;
+  const { uuid, txHash } = req.body;
+
+  if (txHash) {
+    await appendTxHashToPayment(uuid, txHash);
+    return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
+  }
+
+  const { typedData, signature } = req.body;
   const { from, to, value, nonce, validAfter, validBefore } = typedData.message;
   const { chainId } = typedData.domain;
 
@@ -36,10 +43,7 @@ export default async function handler(
 
   const provider = new ethers.providers.JsonRpcProvider(sponsoredInfo.rpc);
 
-  if (txHash) {
-    await appendTxHashToPayment(uuid, txHash);
-    return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
-  }
+
 
   const { v, r, s } = ethers.utils.splitSignature(signature);
 
@@ -50,15 +54,11 @@ export default async function handler(
   );
   const txParams = [from, to, value, validAfter, validBefore, nonce, v, r, s];
 
-  console.log(txParams);
-
   // estimate gas
   const estimatedGasLimit =
     await contract.estimateGas.transferWithAuthorization.apply(null, txParams);
 
   // generate unsigned tx
-
-
   const tx = await contract.populateTransaction.transferWithAuthorization.apply(
     null,
     txParams
@@ -76,6 +76,9 @@ export default async function handler(
 
   try {
     const txSubmission = await provider.sendTransaction(signedTx);
+    const txHash = txSubmission.hash;
+    await appendTxHashToPayment(uuid, txHash);
+
     res.status(200).json({ data: txSubmission });
   } catch (err: any) {
     // TODO: Report error somehwere
