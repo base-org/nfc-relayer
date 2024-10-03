@@ -25,9 +25,9 @@ export default async function handler(
     return res.status(500);
   }
 
-  const { message, signature, uuid, txHash } = req.body;
-  const { from, to, value, nonce, validAfter, validBefore } = message.message;
-  const { chainId } = message.domain;
+  const { typedData, signature, uuid, txHash } = req.body;
+  const { from, to, value, nonce, validAfter, validBefore } = typedData.message;
+  const { chainId } = typedData.domain;
 
   const sponsoredInfo = sponsoredUsdcMapping.find((s) => s.chainId === Number(chainId));
   if (!sponsoredInfo) {
