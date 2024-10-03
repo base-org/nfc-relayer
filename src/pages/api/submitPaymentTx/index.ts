@@ -32,9 +32,9 @@ export default async function handler(
     return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
   }
 
-  const { message, signature } = req.body;
-  const { from, to, value, nonce, validAfter, validBefore } = message.message;
-  const { chainId } = message.domain;
+  const { typedData, signature } = req.body;
+  const { from, to, value, nonce, validAfter, validBefore } = typedData.message;
+  const { chainId } = typedData.domain;
 
   const sponsoredInfo = sponsoredUsdcMapping.find((s) => s.chainId === Number(chainId));
   if (!sponsoredInfo) {
