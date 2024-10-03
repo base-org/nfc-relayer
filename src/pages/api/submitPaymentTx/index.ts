@@ -25,7 +25,14 @@ export default async function handler(
     return res.status(500);
   }
 
-  const { message, signature, uuid, txHash } = req.body;
+  const { uuid, txHash } = req.body;
+
+  if (txHash) {
+    await appendTxHashToPayment(uuid, txHash);
+    return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
+  }
+
+  const { message, signature } = req.body;
   const { from, to, value, nonce, validAfter, validBefore } = message.message;
   const { chainId } = message.domain;
 
@@ -36,10 +43,7 @@ export default async function handler(
 
   const provider = new ethers.providers.JsonRpcProvider(sponsoredInfo.rpc);
 
-  if (txHash) {
-    await appendTxHashToPayment(uuid, txHash);
-    return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
-  }
+
 
   const { v, r, s } = ethers.utils.splitSignature(signature);
 
