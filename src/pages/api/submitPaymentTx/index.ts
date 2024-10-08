@@ -43,8 +43,6 @@ export default async function handler(
 
   const provider = new ethers.providers.JsonRpcProvider(sponsoredInfo.rpc);
 
-
-
   const { v, r, s } = ethers.utils.splitSignature(signature);
 
   const contract = new ethers.Contract(
