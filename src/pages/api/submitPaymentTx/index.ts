@@ -1,7 +1,9 @@
 import { fiatTokenAbi } from "@/FiatTokenAbi";
+import { relayPayWithAuthorization } from "@/helpers/relayPayWithAuthorization";
 import { applyCors } from "@/services/cors";
 import { appendTxHashToPayment } from "@/services/paymentTxOrMsgService";
 import { sponsoredUsdcMapping } from "@/sponsoredUsdcConfig";
+import { payWithAuthorization } from "@slicekit/core";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -32,13 +34,35 @@ export default async function handler(
     return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
   }
 
-  const { typedData, signature } = req.body;
+  const { typedData, signature, additionalPayload } = req.body;
   const { from, to, value, nonce, validAfter, validBefore } = typedData.message;
   const { chainId } = typedData.domain;
 
   const sponsoredInfo = sponsoredUsdcMapping.find((s) => s.chainId === Number(chainId));
   if (!sponsoredInfo) {
     return res.status(500).json({ error: "Unsupported chain" });
+  }
+
+  if (additionalPayload) {
+    const { txHash } = await relayPayWithAuthorization({ 
+      cartParams: additionalPayload.cartParams,
+      slicerId: additionalPayload.slicerId,
+      totalUsdcPrice: value,
+      buyer: from,
+      chainId,
+      signature,
+      authorizationParams: {
+        from,
+        nonce,
+        to,
+        validAfter,
+        validBefore,
+        value,
+      },
+    });
+
+    await appendTxHashToPayment(uuid, txHash);
+    return res.status(200).json({ data: { txHash } as TxHashReceivedResponse });
   }
 
   const provider = new ethers.providers.JsonRpcProvider(sponsoredInfo.rpc);
