@@ -82,7 +82,7 @@ export const getPaymentTxOrMsg = async (uuid: string, senderAddress?: string) =>
   const { txParams, ...rest } = paymentTxOrMsg;
 
   if (paymentTxOrMsg.payloadType === 'eip712') {
-    return formatTxMessageResponse({
+    return await formatTxMessageResponse({
       txMessage: {
         ...rest,
         ...(txParams as Record<string, unknown>),

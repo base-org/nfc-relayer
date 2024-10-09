@@ -13,12 +13,16 @@
   },
   "dependencies": {
     "@prisma/client": "^3.6.0",
+    "@slicekit/core": "^0.4.4",
+    "@wagmi/core": "^2.13.8",
     "cors": "^2.8.5",
     "ethers": "5",
+    "merkletreejs": "^0.4.0",
     "next": "^12.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "viem": "^2.21.19"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
